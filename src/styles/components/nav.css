@@ -1,0 +1,29 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+/*
+
+*  First Section
+*  Second Section
+*  Third Section
+*  And So On
+
+*/
+
+@layer components {
+  .navPageButton {
+    @apply inline-block h-10 leading-10 mt-1 px-2 mx-2.5 mr-1 cursor-pointer select-none;
+  }
+
+  .navPageButton_selected {
+    @apply inline-block h-10 leading-10 mt-1 px-2 mx-2.5 mr-1 cursor-pointer bg-white bg-opacity-0 select-none;
+  }
+
+  .navPageButton .page_button_indicator {
+    @apply opacity-0;
+  }
+
+  .navPageButton_selected .page_button_indicator {
+    @apply opacity-100;
+  }
+}
