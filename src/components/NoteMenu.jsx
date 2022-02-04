@@ -1,12 +1,8 @@
 import Link from 'next/link'
 
-const Footer = ({ notes, selectedIndex = 0 }) => {
-  let list = ['Food', 'Exercise', 'Hobbies', 'School', 'Poems']
-
-  console.log('NOTES MENU', notes)
-
+const NoteMenu = ({ notes = [], selectedIndex = 0, handleNoteClick }) => {
   return (
-    <div className="relative mb-10 ml-4 table h-80 w-60">
+    <div className="h-80F relative mb-10 ml-4 table w-60">
       <div className="border-bF mb-6 w-full px-3 text-sm font-semibold text-slate-600">
         Notes
       </div>
@@ -20,6 +16,9 @@ const Footer = ({ notes, selectedIndex = 0 }) => {
               className={
                 'w-full cursor-pointer border-b border-slate-100 p-1 text-sm font-semibold hover:bg-slate-50'
               }
+              onClick={() => {
+                handleNoteClick(index)
+              }}
             >
               <div className={'h-full w-full rounded-md p-2 ' + itemClass}>
                 {item.title}
@@ -44,11 +43,11 @@ const Footer = ({ notes, selectedIndex = 0 }) => {
         </label>
         <input type="text" className="mt-1 rounded" name="title" required />
         <button className="ml-4 mt-3 rounded bg-slate-200 px-2 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-300">
-          add a new note
+          Add a new note
         </button>
       </form>
     </div>
   )
 }
 
-export default Footer
+export default NoteMenu

@@ -34,19 +34,52 @@ import NoteEditor from '../components/NoteEditor'
 import { initializeDatabase } from '../functions/firebase/firestore'
 import { initializeAuthentication } from '../functions/firebase/auth'
 
-const getCurrentNotesCollection = () => {}
+const startNotesSnapshot = (
+  db,
+  currentNotebookArray,
+  currentNotebookIndex,
+  setNotes,
+  setCurrentNotesColRef
+) => {
+  // console.log('title 0', currentNotebookArray[0].title)
+  // console.log('current notebook index', currentNotebookIndex)
+  const notesColRef = collection(
+    db,
+    'notebooks',
+    currentNotebookArray[currentNotebookIndex].title,
+    'notes'
+  )
+  onSnapshot(notesColRef, (snapshot) => {
+    let newNotes = []
+    snapshot.docs.forEach((doc) => {
+      newNotes.push({ ...doc.data(), id: doc.id })
+    })
+    setCurrentNotesColRef(
+      notesColRef,
+      console.log('current notes were updated')
+    )
+    setNotes(newNotes)
+  })
+}
+
+const handleNotebookClick = (index = -1) => {
+  console.log(`notebook ${index} was clicked`)
+}
+
+const handleNoteClick = (index = -1) => {
+  console.log(`note ${index} was clicked`)
+}
 
 const HomePage = () => {
   const [notebooks, setNotebooks] = useState([])
   const [notes, setNotes] = useState([])
-  const [currentNotebookId, setCurrentNotebookId] = useState([])
+  const [currentNotebook, setCurrentNotebook] = useState([])
+
   const [selectedNotebookIndex, setSelectedNotebookIndex] = useState(0)
   const [selectedNoteIndex, setSelectedNoteIndex] = useState(0)
-  const [selectedNotesColRef, setSelectedNotesColRef] = useState(null)
+  const [currentNotesColRef, setCurrentNotesColRef] = useState(null)
 
   useEffect(() => {
-    // initializeDatabase()
-    // initializeAuthentication()
     const auth = getAuth()
     const db = getFirestore()
     const notebooksColRef = collection(db, 'notebooks')
@@ -67,31 +100,20 @@ const HomePage = () => {
     const unsubNotebooksCol = onSnapshot(
       filteredNotebooksColQuery,
       (snapshot) => {
-        let fetchedNotebooks = []
+        let newBooks = []
         snapshot.docs.forEach((doc) => {
-          fetchedNotebooks.push({ ...doc.data(), id: doc.id })
+          newBooks.push({ ...doc.data(), id: doc.id })
         })
-        console.log(fetchedNotebooks)
-        setNotebooks(fetchedNotebooks)
-        if (fetchedNotebooks[0]) {
-          console.log('title 0', fetchedNotebooks[0].title)
-          const currentNotesColRef = collection(
+        setNotebooks(
+          newBooks,
+          startNotesSnapshot(
             db,
-            'notebooks',
-            fetchedNotebooks[0].title,
-            'notes'
+            newBooks,
+            selectedNotebookIndex,
+            setNotes,
+            setCurrentNotesColRef
           )
-          console.log('NOTES COL REF', currentNotesColRef)
-          setSelectedNotesColRef(currentNotesColRef)
-          onSnapshot(currentNotesColRef, (snapshot) => {
-            let fetchedNotes = []
-            snapshot.docs.forEach((doc) => {
-              fetchedNotes.push({ ...doc.data(), id: doc.id })
-            })
-            console.log('fetched notes', fetchedNotes)
-            setNotes(fetchedNotes)
-          })
-        }
+        )
       }
     )
 
@@ -110,9 +132,9 @@ const HomePage = () => {
     const addNoteForm = document.querySelector('.add_note')
     addNoteForm.addEventListener('submit', (e) => {
       e.preventDefault()
-
-      if (selectedNotesColRef) {
-        addDoc(selectedNotesColRef, {
+      console.log('notes ref from form', currentNotesColRef)
+      if (currentNotesColRef) {
+        addDoc(currentNotesColRef, {
           title: addNoteForm.title.value,
           createdAt: serverTimestamp()
         }).then(() => {
@@ -121,7 +143,7 @@ const HomePage = () => {
       } else {
         console.log(
           'somethings wrong with the current notes list',
-          selectedNotesColRef
+          currentNotesColRef
         )
       }
     })
@@ -133,8 +155,16 @@ const HomePage = () => {
       <Nav selectedPageIndex={0} />
 
       <main className="main_content_wrapper page_width_wide bg-blue-200F flex">
-        <NotebookMenu notebooks={notebooks} selectedIndex={0} />
-        <NoteMenu notes={notes} selectedIndex={0} />
+        <NotebookMenu
+          notebooks={notebooks}
+          selectedIndex={0}
+          handleNotebookClick={handleNotebookClick}
+        />
+        <NoteMenu
+          notes={notes}
+          selectedIndex={0}
+          handleNoteClick={handleNoteClick}
+        />
         <NoteEditor />
       </main>
     </>
