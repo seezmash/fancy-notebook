@@ -1,20 +1,21 @@
 import Link from 'next/link'
 
 const NoteMenu = ({
-  notes = [],
-  currentNote,
+  state_notes = [],
+  state_currentNote,
+  state_currentFolder,
   selectedIndex = 0,
   handleNoteClick,
-  notesFormOnSubmit
+  submitAddNoteForm
 }) => {
-  let currentNoteId = currentNote ? currentNote.id : null
+  let currentNoteId = state_currentNote ? state_currentNote.id : null
   return (
     <div className="h-80F relative mb-10 ml-4 table w-60">
       <div className="border-bF mb-6 w-full px-3 text-sm font-semibold text-slate-600">
         Notes
       </div>
       <div className="borderF relative h-full w-full overflow-hidden rounded-md bg-white shadow">
-        {notes.map((item, index) => {
+        {state_notes.map((item, index) => {
           let itemClass =
             item.id === currentNoteId ? ' selected_note' : 'text-slate-600'
 
@@ -46,8 +47,11 @@ const NoteMenu = ({
         </div> */}
       </div>
       <form
+        id="add_note_form"
         className="add_note mt-10 rounded bg-slate-100 p-4"
-        onSubmit={notesFormOnSubmit}
+        onSubmit={(e) => {
+          submitAddNoteForm(e, state_currentFolder)
+        }}
       >
         <label htmlFor="title" className="text-sm font-semibold text-slate-600">
           Title:

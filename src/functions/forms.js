@@ -14,7 +14,34 @@ import {
   updateDoc
 } from 'firebase/firestore'
 
-const foldersFormSubmit = (foldersColRef, foldersForm) => {
+const submitAddFolderForm = (e) => {
+  e.preventDefault()
+  const db = getFirestore()
+  const foldersColRef = collection(db, 'folders')
+  const addFolderForm = document.getElementById('add_folder_form')
+  addFolderToFirestore(foldersColRef, addFolderForm)
+}
+
+const submitAddNoteForm = (e, currentFolder) => {
+  e.preventDefault()
+  const db = getFirestore()
+  // const addNoteForm = document.querySelector('.add_note')
+  const addNoteForm = document.getElementById('add_note_form')
+  // console.log('note form items', addNoteForm, addNoteForm2)
+  if (currentFolder) {
+    const currentNotesColRef = collection(
+      db,
+      'folders',
+      currentFolder.id,
+      'notes'
+    )
+    addNoteToFirestore(currentNotesColRef, addNoteForm)
+  } else {
+    console.log('there is no current folder')
+  }
+}
+
+const addFolderToFirestore = (foldersColRef, foldersForm) => {
   if (foldersForm.title) {
     addDoc(foldersColRef, {
       title: foldersForm.title.value,
@@ -27,7 +54,7 @@ const foldersFormSubmit = (foldersColRef, foldersForm) => {
   }
 }
 
-const notesFormSubmit = (notesColRef, notesForm) => {
+const addNoteToFirestore = (notesColRef, notesForm) => {
   if (notesForm.title) {
     addDoc(notesColRef, {
       title: notesForm.title.value,
@@ -40,4 +67,9 @@ const notesFormSubmit = (notesColRef, notesForm) => {
   }
 }
 
-export { foldersFormSubmit, notesFormSubmit }
+export {
+  submitAddFolderForm,
+  submitAddNoteForm,
+  addFolderToFirestore,
+  addNoteToFirestore
+}

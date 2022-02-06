@@ -1,5 +1,6 @@
 import NextHead from '../components/next/NextHead'
-import React, { useEffect, useState, useRef } from 'react'
+import React, { useEffect, useState } from 'react'
+
 // Firebase
 import {
   getAuth,
@@ -26,30 +27,30 @@ import {
 
 // Layout
 import Nav from '../components/Nav'
-import FolderMenu from '../components/FolderMenu'
-import NoteMenu from '../components/NoteMenu'
+import FoldersMenu from '../components/FoldersMenu'
+import NotesMenu from '../components/NotesMenu'
 import NoteEditor from '../components/NoteEditor'
 
 // Functions
-import { foldersFormSubmit, notesFormSubmit } from '../functions/forms'
+import { submitAddFolderForm, submitAddNoteForm } from '../functions/forms'
 import { getDocsFromSnapshot } from '../functions/misc'
 
 // = = = = = = = = = = COMPONENT = = = = = = = = = =
 
 const HomePage = () => {
-  const [folders, setFolders] = useState([])
-  const [notes, setNotes] = useState([])
-  const [currentFolder, setCurrentFolder] = useState(null)
-  const [currentNote, setCurrentNote] = useState(null)
-  const currentFolderStateRef = React.useRef(currentFolder)
+  const [state_folders, setState_folders] = useState([])
+  const [state_notes, setState_notes] = useState([])
+  const [state_currentFolder, setState_currentFolder] = useState(null)
+  const [state_currentFolderRef, setState_currentFolderRef] = useState(null)
+  const [state_currentNote, setState_currentNote] = useState(null)
 
   const logCurrentState = () => {
     console.log(
       'current folder',
-      currentFolder,
+      state_currentFolder,
       '\ncurrent note',
-      currentNote,
-      folders
+      state_currentNote,
+      state_folders
     )
   }
 
@@ -61,17 +62,17 @@ const HomePage = () => {
   ) => {
     if (clickedFolderId !== currentFolderId) {
       const db = getFirestore()
-      setCurrentFolder(passedFolders[index])
+      setState_currentFolder(passedFolders[index])
       const newNotesColRef = collection(db, 'folders', clickedFolderId, 'notes')
       const filteredNotesColQuery = query(newNotesColRef, orderBy('createdAt'))
 
       const unsubNotesCol = onSnapshot(filteredNotesColQuery, (snapshot) => {
         let newNotes = getDocsFromSnapshot(snapshot)
-        setNotes(newNotes)
+        setState_notes(newNotes)
         console.log('new notes', newNotes)
-        if (!currentNote) {
+        if (!state_currentNote) {
           console.log('there were no notes, new note is ', newNotes[0])
-          setCurrentNote(newNotes[0])
+          setState_currentNote(newNotes[0])
         }
       })
       return unsubNotesCol
@@ -82,33 +83,6 @@ const HomePage = () => {
 
   const handleNoteClick = (index = -1) => {
     console.log(`note ${index} was clicked`)
-  }
-
-  const foldersFormOnSubmit = (e) => {
-    e.preventDefault()
-    const db = getFirestore()
-    const foldersColRef = collection(db, 'folders')
-    const addFolderForm = document.querySelector('.add_folder')
-    foldersFormSubmit(foldersColRef, addFolderForm)
-  }
-
-  const notesFormOnSubmit = (e) => {
-    e.preventDefault()
-    const db = getFirestore()
-    const addNoteForm = document.querySelector('.add_note')
-    if (currentFolder) {
-      const currentNotesColRef = collection(
-        db,
-        'folders',
-        currentFolder.id,
-        'notes'
-      )
-      console.log('new col ref is', currentNotesColRef)
-
-      notesFormSubmit(currentNotesColRef, addNoteForm)
-    } else {
-      console.log('there is no current folder')
-    }
   }
 
   // = = = = = = = = = = USE EFFECT = = = = = = = = = =
@@ -129,38 +103,11 @@ const HomePage = () => {
 
     const unsubFoldersCol = onSnapshot(filteredFoldersColQuery, (snapshot) => {
       let newFolders = getDocsFromSnapshot(snapshot)
-      setFolders(newFolders)
-      if (!currentFolder) setCurrentFolder(newFolders[0])
+      setState_folders(newFolders)
+      if (!state_currentFolder) {
+        setState_currentFolder(newFolders[0])
+      }
     })
-
-    // const addFolderForm = document.querySelector('.add_folder')
-    // addFolderForm.addEventListener('submit', (e) => {
-    //   e.preventDefault()
-    //   foldersFormSubmit(foldersColRef, addFolderForm)
-    // })
-
-    // const addNoteForm = document.querySelector('.add_note')
-    // addNoteForm.addEventListener('submit', (e) => {
-    //   e.preventDefault()
-    //   let currentFolderState = currentFolderStateRef.current
-
-    //   console.log('folder state ref', currentFolderStateRef.current)
-
-    //   console.log('current folder on submit', currentFolderState)
-    //   if (currentFolderState) {
-    //     const currentNotesColRef = collection(
-    //       db,
-    //       'folders',
-    //       currentFolderState.id,
-    //       'notes'
-    //     )
-    //     console.log('new col ref is', currentNotesColRef)
-
-    //     notesFormSubmit(currentNotesColRef, addNoteForm)
-    //   } else {
-    //     console.log('there is no current folder')
-    //   }
-    // })
   }, [])
 
   return (
@@ -169,17 +116,18 @@ const HomePage = () => {
       <Nav selectedPageIndex={0} />
 
       <main className="main_content_wrapper page_width_wide bg-blue-200F flex">
-        <FolderMenu
-          folders={folders}
-          currentFolder={currentFolder}
+        <FoldersMenu
+          state_folders={state_folders}
+          state_currentFolder={state_currentFolder}
           handleFolderClick={handleFolderClick}
-          foldersFormOnSubmit={foldersFormOnSubmit}
+          submitAddFolderForm={submitAddFolderForm}
         />
-        <NoteMenu
-          notes={notes}
-          currentNote={currentNote}
+        <NotesMenu
+          state_notes={state_notes}
+          state_currentNote={state_currentNote}
+          state_currentFolder={state_currentFolder}
           handleNoteClick={handleNoteClick}
-          notesFormOnSubmit={notesFormOnSubmit}
+          submitAddNoteForm={submitAddNoteForm}
         />
         <NoteEditor />
         <div

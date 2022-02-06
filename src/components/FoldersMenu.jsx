@@ -1,19 +1,19 @@
 import Link from 'next/link'
 
 const FolderMenu = ({
-  folders = [],
-  currentFolder,
+  state_folders = [],
+  state_currentFolder,
   handleFolderClick,
-  foldersFormOnSubmit
+  submitAddFolderForm
 }) => {
-  let currentFolderId = currentFolder ? currentFolder.id : null
+  let currentFolderId = state_currentFolder ? state_currentFolder.id : null
   return (
     <div className="border-rF relative mb-10 table w-48">
       <div className="border-bF mb-6 w-full px-3 text-sm font-semibold text-slate-600">
         Folders
       </div>
       <div className="bg-gray-50F borderF relative h-full w-full overflow-hidden rounded-md bg-white shadow">
-        {folders.map((item, index) => {
+        {state_folders.map((item, index) => {
           let itemClass =
             item.id === currentFolderId
               ? ' selected_collection'
@@ -25,7 +25,12 @@ const FolderMenu = ({
                 'w-full cursor-pointer border-b border-slate-100 p-1 text-sm font-semibold hover:bg-slate-50'
               }
               onClick={() => {
-                handleFolderClick(folders, item.id, currentFolderId, index)
+                handleFolderClick(
+                  state_folders,
+                  item.id,
+                  currentFolderId,
+                  index
+                )
               }}
             >
               <div className={'h-full w-full rounded-md p-2 ' + itemClass}>
@@ -46,8 +51,11 @@ const FolderMenu = ({
         </div> */}
       </div>
       <form
-        className="add_folder mt-10 rounded bg-slate-100 p-4"
-        onSubmit={foldersFormOnSubmit}
+        id="add_folder_form"
+        className="mt-10 rounded bg-slate-100 p-4"
+        onSubmit={(e) => {
+          submitAddFolderForm(e)
+        }}
       >
         <label htmlFor="title" className="text-sm font-semibold text-slate-600">
           Title:
