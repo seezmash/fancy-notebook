@@ -1,19 +1,18 @@
 import Link from 'next/link'
 
-const FolderMenu = ({
-  notebooks = [],
-  selectedIndex = 0,
-  handleNotebookClick
-}) => {
+const FolderMenu = ({ folders = [], currentFolder, handleFolderClick }) => {
+  let currentFolderId = currentFolder ? currentFolder.id : null
   return (
     <div className="border-rF relative mb-10 table w-48">
       <div className="border-bF mb-6 w-full px-3 text-sm font-semibold text-slate-600">
         Folders
       </div>
       <div className="bg-gray-50F borderF relative h-full w-full overflow-hidden rounded-md bg-white shadow">
-        {notebooks.map((item, index) => {
+        {folders.map((item, index) => {
           let itemClass =
-            index === selectedIndex ? ' selected_collection' : 'text-slate-600'
+            item.id === currentFolderId
+              ? ' selected_collection'
+              : 'text-slate-600'
           return (
             <div
               key={'shortid_' + index}
@@ -21,7 +20,7 @@ const FolderMenu = ({
                 'w-full cursor-pointer border-b border-slate-100 p-1 text-sm font-semibold hover:bg-slate-50'
               }
               onClick={() => {
-                handleNotebookClick(index)
+                handleFolderClick(index)
               }}
             >
               <div className={'h-full w-full rounded-md p-2 ' + itemClass}>
@@ -41,7 +40,7 @@ const FolderMenu = ({
           />
         </div> */}
       </div>
-      <form className="add_notebook mt-10 rounded bg-slate-100 p-4">
+      <form className="add_folder mt-10 rounded bg-slate-100 p-4">
         <label htmlFor="title" className="text-sm font-semibold text-slate-600">
           Title:
         </label>

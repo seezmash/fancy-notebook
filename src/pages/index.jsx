@@ -26,126 +26,102 @@ import {
 
 // Layout
 import Nav from '../components/Nav'
-import NotebookMenu from '../components/NotebookMenu'
+import FolderMenu from '../components/FolderMenu'
 import NoteMenu from '../components/NoteMenu'
 import NoteEditor from '../components/NoteEditor'
 
 // Functions
-import { initializeDatabase } from '../functions/firebase/firestore'
-import { initializeAuthentication } from '../functions/firebase/auth'
+import { folderFormSubmit, noteFormSubmit } from '../functions/forms'
+import { getDocsFromSnapshot } from '../functions/misc'
 
-const startNotesSnapshot = (
-  db,
-  currentNotebookArray,
-  currentNotebookIndex,
-  setNotes,
-  setCurrentNotesColRef
-) => {
-  // console.log('title 0', currentNotebookArray[0].title)
-  // console.log('current notebook index', currentNotebookIndex)
-  const notesColRef = collection(
-    db,
-    'notebooks',
-    currentNotebookArray[currentNotebookIndex].title,
-    'notes'
-  )
-  onSnapshot(notesColRef, (snapshot) => {
-    let newNotes = []
-    snapshot.docs.forEach((doc) => {
-      newNotes.push({ ...doc.data(), id: doc.id })
-    })
-    setCurrentNotesColRef(
-      notesColRef,
-      console.log('current notes were updated')
-    )
-    setNotes(newNotes)
-  })
-}
-
-const handleNotebookClick = (index = -1) => {
-  console.log(`notebook ${index} was clicked`)
-}
-
-const handleNoteClick = (index = -1) => {
-  console.log(`note ${index} was clicked`)
-}
+// = = = = = = = = = = COMPONENT = = = = = = = = = =
 
 const HomePage = () => {
-  const [notebooks, setNotebooks] = useState([])
+  const [folders, setFolders] = useState([])
   const [notes, setNotes] = useState([])
-  const [currentNotebook, setCurrentNotebook] = useState([])
+  const [notesColRef, setNotesColRef] = useState({})
+  const [subcollectionRef, setSubcollectionRef] = useState(null)
 
-  const [selectedNotebookIndex, setSelectedNotebookIndex] = useState(0)
+  const [currentFolder, setCurrentFolder] = useState(null)
+  const [currentNote, setCurrentNote] = useState(null)
+  const [currentFolderIndex, setCurrentFolderIndex] = useState(0)
   const [selectedNoteIndex, setSelectedNoteIndex] = useState(0)
   const [currentNotesColRef, setCurrentNotesColRef] = useState(null)
+
+  const logCurrentState = () => {
+    console.log(
+      'notebook state ',
+      `index ${currentFolderIndex}`,
+      currentFolder,
+      '\nnote state ',
+      `index ${selectedNoteIndex}`,
+      currentNote,
+      folders
+    )
+  }
+
+  const handleFolderClick = (index = -1) => {
+    const db = getFirestore()
+
+    setCurrentFolderIndex(index)
+    setCurrentFolder(folders[index])
+    // updateNotesColRef()
+    const currentFolderNotesColRef = collection(
+      db,
+      'folders',
+      folders[index].id,
+      'notes'
+    )
+    console.log(currentFolderNotesColRef)
+    setSubcollectionRef(currentFolderNotesColRef)
+  }
+
+  const handleNoteClick = (index = -1) => {
+    console.log(`note ${index} was clicked`)
+    setSelectedNoteIndex(index)
+  }
+
+  // = = = = = = = = = = USE EFFECT = = = = = = = = = =
 
   useEffect(() => {
     const auth = getAuth()
     const db = getFirestore()
-    const notebooksColRef = collection(db, 'notebooks')
-    const filteredNotebooksColQuery = query(
-      notebooksColRef,
-      orderBy('createdAt')
-    )
 
-    // const currentNotesColRef = collection(
-    //   db,
-    //   'notebooks',
-    //   currentNotebookId,
-    //   'notes'
-    // )
-
-    // const userSubscriptions = `collection(db, "customers", currentUser.uid, "subscriptions")`
-
-    const unsubNotebooksCol = onSnapshot(
-      filteredNotebooksColQuery,
-      (snapshot) => {
-        let newBooks = []
-        snapshot.docs.forEach((doc) => {
-          newBooks.push({ ...doc.data(), id: doc.id })
-        })
-        setNotebooks(
-          newBooks,
-          startNotesSnapshot(
-            db,
-            newBooks,
-            selectedNotebookIndex,
-            setNotes,
-            setCurrentNotesColRef
-          )
-        )
-      }
-    )
-
-    const addNotebookForm = document.querySelector('.add_notebook')
-    addNotebookForm.addEventListener('submit', (e) => {
-      e.preventDefault()
-
-      addDoc(notebooksColRef, {
-        title: addNotebookForm.title.value,
-        createdAt: serverTimestamp()
-      }).then(() => {
-        addNotebookForm.reset()
+    const subToFolder = (db, folderRef) => {
+      const unsubFolder = onSnapshot(folderRef, (doc) => {
+        console.log(doc.data(), doc.id)
       })
+      return unsubFolder
+    }
+
+    const foldersColRef = collection(db, 'folders')
+    const filteredFoldersColQuery = query(foldersColRef, orderBy('createdAt'))
+
+    const unsubFoldersCol = onSnapshot(filteredFoldersColQuery, (snapshot) => {
+      let folderIndex = currentFolderIndex ? currentFolderIndex : 0
+      let newFolders = getDocsFromSnapshot(snapshot)
+      setFolders(newFolders)
+      setCurrentFolder(newFolders[folderIndex])
+      const currentFolderNotesColRef = collection(
+        db,
+        'folders',
+        newFolders[folderIndex].id,
+        'notes'
+      )
+      console.log('notes col ref', currentFolderNotesColRef)
+      console.log(newFolders[folderIndex].id)
+      setNotesColRef(currentFolderNotesColRef)
+    })
+
+    const addFolderForm = document.querySelector('.add_folder')
+    addFolderForm.addEventListener('submit', (e) => {
+      folderFormSubmit(e, foldersColRef, addFolderForm)
     })
 
     const addNoteForm = document.querySelector('.add_note')
     addNoteForm.addEventListener('submit', (e) => {
-      e.preventDefault()
-      console.log('notes ref from form', currentNotesColRef)
-      if (currentNotesColRef) {
-        addDoc(currentNotesColRef, {
-          title: addNoteForm.title.value,
-          createdAt: serverTimestamp()
-        }).then(() => {
-          addNoteForm.reset()
-        })
-      } else {
-        console.log(
-          'somethings wrong with the current notes list',
-          currentNotesColRef
-        )
-      }
+      console.log('add note click', subcollectionRef)
+      noteFormSubmit(e, subcollectionRef, addNoteForm)
     })
   }, [])
 
@@ -155,17 +131,23 @@ const HomePage = () => {
       <Nav selectedPageIndex={0} />
 
       <main className="main_content_wrapper page_width_wide bg-blue-200F flex">
-        <NotebookMenu
-          notebooks={notebooks}
-          selectedIndex={0}
-          handleNotebookClick={handleNotebookClick}
+        <FolderMenu
+          folders={folders}
+          currentFolder={currentFolder}
+          handleFolderClick={handleFolderClick}
         />
         <NoteMenu
           notes={notes}
-          selectedIndex={0}
+          currentNote={currentNote}
           handleNoteClick={handleNoteClick}
         />
         <NoteEditor />
+        <div
+          className="mt-60 ml-4 h-min cursor-pointer rounded bg-slate-500 px-2 py-2 text-center text-sm font-semibold text-white"
+          onClick={logCurrentState}
+        >
+          log current state
+        </div>
       </main>
     </>
   )

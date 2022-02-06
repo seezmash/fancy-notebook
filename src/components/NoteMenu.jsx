@@ -1,6 +1,12 @@
 import Link from 'next/link'
 
-const NoteMenu = ({ notes = [], selectedIndex = 0, handleNoteClick }) => {
+const NoteMenu = ({
+  notes = [],
+  currentNote,
+  selectedIndex = 0,
+  handleNoteClick
+}) => {
+  let currentNoteId = currentNote ? currentNote.id : null
   return (
     <div className="h-80F relative mb-10 ml-4 table w-60">
       <div className="border-bF mb-6 w-full px-3 text-sm font-semibold text-slate-600">
@@ -8,7 +14,8 @@ const NoteMenu = ({ notes = [], selectedIndex = 0, handleNoteClick }) => {
       </div>
       <div className="borderF relative h-full w-full overflow-hidden rounded-md bg-white shadow">
         {notes.map((item, index) => {
-          let itemClass = index === 4 ? ' selected_note' : 'text-slate-600'
+          let itemClass =
+            item.id === currentNoteId ? ' selected_note' : 'text-slate-600'
 
           return (
             <div
