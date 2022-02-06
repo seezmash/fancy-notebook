@@ -14,25 +14,30 @@ import {
   updateDoc
 } from 'firebase/firestore'
 
-const folderFormSubmit = (e, foldersColRef, folderForm) => {
-  e.preventDefault()
-  addDoc(foldersColRef, {
-    title: folderForm.title.value,
-    createdAt: serverTimestamp()
-  }).then(() => {
-    folderForm.reset()
-  })
+const foldersFormSubmit = (foldersColRef, foldersForm) => {
+  if (foldersForm.title) {
+    addDoc(foldersColRef, {
+      title: foldersForm.title.value,
+      createdAt: serverTimestamp()
+    }).then(() => {
+      foldersForm.reset()
+    })
+  } else {
+    console.log('there is no folder title')
+  }
 }
 
-const noteFormSubmit = (e, notesColRef, noteForm) => {
-  e.preventDefault()
-  console.log('note submit - notesColRef', notesColRef)
-  // addDoc(notesColRef, {
-  //   title: noteForm.title.value,
-  //   createdAt: serverTimestamp()
-  // }).then(() => {
-  //   noteForm.reset()
-  // })
+const notesFormSubmit = (notesColRef, notesForm) => {
+  if (notesForm.title) {
+    addDoc(notesColRef, {
+      title: notesForm.title.value,
+      createdAt: serverTimestamp()
+    }).then(() => {
+      notesForm.reset()
+    })
+  } else {
+    console.log('this is no note title')
+  }
 }
 
-export { folderFormSubmit, noteFormSubmit }
+export { foldersFormSubmit, notesFormSubmit }

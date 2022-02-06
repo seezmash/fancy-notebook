@@ -4,7 +4,8 @@ const NoteMenu = ({
   notes = [],
   currentNote,
   selectedIndex = 0,
-  handleNoteClick
+  handleNoteClick,
+  notesFormOnSubmit
 }) => {
   let currentNoteId = currentNote ? currentNote.id : null
   return (
@@ -44,7 +45,10 @@ const NoteMenu = ({
           />
         </div> */}
       </div>
-      <form className="add_note mt-10 rounded bg-slate-100 p-4">
+      <form
+        className="add_note mt-10 rounded bg-slate-100 p-4"
+        onSubmit={notesFormOnSubmit}
+      >
         <label htmlFor="title" className="text-sm font-semibold text-slate-600">
           Title:
         </label>

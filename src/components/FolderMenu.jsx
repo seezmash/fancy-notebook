@@ -1,6 +1,11 @@
 import Link from 'next/link'
 
-const FolderMenu = ({ folders = [], currentFolder, handleFolderClick }) => {
+const FolderMenu = ({
+  folders = [],
+  currentFolder,
+  handleFolderClick,
+  foldersFormOnSubmit
+}) => {
   let currentFolderId = currentFolder ? currentFolder.id : null
   return (
     <div className="border-rF relative mb-10 table w-48">
@@ -20,7 +25,7 @@ const FolderMenu = ({ folders = [], currentFolder, handleFolderClick }) => {
                 'w-full cursor-pointer border-b border-slate-100 p-1 text-sm font-semibold hover:bg-slate-50'
               }
               onClick={() => {
-                handleFolderClick(index)
+                handleFolderClick(folders, item.id, currentFolderId, index)
               }}
             >
               <div className={'h-full w-full rounded-md p-2 ' + itemClass}>
@@ -40,7 +45,10 @@ const FolderMenu = ({ folders = [], currentFolder, handleFolderClick }) => {
           />
         </div> */}
       </div>
-      <form className="add_folder mt-10 rounded bg-slate-100 p-4">
+      <form
+        className="add_folder mt-10 rounded bg-slate-100 p-4"
+        onSubmit={foldersFormOnSubmit}
+      >
         <label htmlFor="title" className="text-sm font-semibold text-slate-600">
           Title:
         </label>
