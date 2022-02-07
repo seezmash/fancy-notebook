@@ -30,6 +30,7 @@ import Nav from '../components/Nav'
 import FoldersMenu from '../components/FoldersMenu'
 import NotesMenu from '../components/NotesMenu'
 import NoteEditor from '../components/NoteEditor'
+import AboutSidePanel from '../components/AboutSidePanel'
 
 // Functions
 import { submitAddFolderForm, submitAddNoteForm } from '../functions/forms'
@@ -69,7 +70,6 @@ const HomePage = () => {
       const unsubNotesCol = onSnapshot(filteredNotesColQuery, (snapshot) => {
         let newNotes = getDocsFromSnapshot(snapshot)
         setState_notes(newNotes)
-        console.log('new notes', newNotes)
         if (!state_currentNote) {
           console.log('there were no notes, new note is ', newNotes[0])
           setState_currentNote(newNotes[0])
@@ -81,22 +81,43 @@ const HomePage = () => {
     }
   }
 
-  const handleNoteClick = (index = -1) => {
-    console.log(`note ${index} was clicked`)
+  const handleNoteClick = (passedNotes, clickedNoteId, index = -1) => {
+    setState_currentNote(passedNotes[index])
   }
 
+    const deleteSelectedFolder = (e, currentFolderId) => {
+      if(e) { e.preventDefault() }
+      console.log(`delete folder ${currentFolderId} was clicked`)
+        const db = getFirestore()
+        const docRef = doc(db, 'folders', currentFolderId)
+
+        deleteDoc(docRef).then(() => {
+          console.log(`${currentFolderId} was deleted`)
+        })
+        // set new current folder
+    }
+
+        const deleteSelectedNote = (e, currentFolderId, currentNoteId, noteName) => {
+          if (e) {
+            e.preventDefault()
+          }
+          if(currentNoteId) {
+            console.log(`delete note ${currentNoteId}`)  
+            const db = getFirestore()
+            const docRef = doc(db, 'folders', currentFolderId, 'notes', currentNoteId)
+
+            deleteDoc(docRef).then(() => {
+              console.log(`${currentFolderId} was deleted`)
+            })
+            // set new current note
+
+          }
+        }
   // = = = = = = = = = = USE EFFECT = = = = = = = = = =
 
   useEffect(() => {
     const auth = getAuth()
     const db = getFirestore()
-
-    const subToFolder = (db, folderRef) => {
-      const unsubFolder = onSnapshot(folderRef, (doc) => {
-        console.log(doc.data(), doc.id)
-      })
-      return unsubFolder
-    }
 
     const foldersColRef = collection(db, 'folders')
     const filteredFoldersColQuery = query(foldersColRef, orderBy('createdAt'))
@@ -108,6 +129,7 @@ const HomePage = () => {
         setState_currentFolder(newFolders[0])
       }
     })
+
   }, [])
 
   return (
@@ -121,6 +143,7 @@ const HomePage = () => {
           state_currentFolder={state_currentFolder}
           handleFolderClick={handleFolderClick}
           submitAddFolderForm={submitAddFolderForm}
+          deleteSelectedFolder={deleteSelectedFolder}
         />
         <NotesMenu
           state_notes={state_notes}
@@ -128,15 +151,17 @@ const HomePage = () => {
           state_currentFolder={state_currentFolder}
           handleNoteClick={handleNoteClick}
           submitAddNoteForm={submitAddNoteForm}
+          deleteSelectedNote={deleteSelectedNote}
         />
-        <NoteEditor />
-        <div
-          className="mt-60 ml-4 h-min cursor-pointer rounded bg-slate-500 px-2 py-2 text-center text-sm font-semibold text-white"
-          onClick={logCurrentState}
-        >
-          log current state
-        </div>
+        <NoteEditor state_currentNote={state_currentNote} />
       </main>
+
+        {/* <div
+          className="fixed bottom-8 right-8 mt-60 ml-4 h-min cursor-pointer rounded bg-slate-200 text-slate-600 px-2 py-2 text-center text-sm font-semibold"
+          onClick={logCurrentState}
+          >
+          log current state
+        </div> */}
     </>
   )
 }

@@ -14,8 +14,15 @@ import {
   updateDoc
 } from 'firebase/firestore'
 
+const deleteSelectedFolder = (e) => {
+
+}
+
+
 const submitAddFolderForm = (e) => {
-  e.preventDefault()
+        if (e) {
+          e.preventDefault()
+        }
   const db = getFirestore()
   const foldersColRef = collection(db, 'folders')
   const addFolderForm = document.getElementById('add_folder_form')
@@ -23,7 +30,9 @@ const submitAddFolderForm = (e) => {
 }
 
 const submitAddNoteForm = (e, currentFolder) => {
-  e.preventDefault()
+      if (e) {
+        e.preventDefault()
+      }
   const db = getFirestore()
   // const addNoteForm = document.querySelector('.add_note')
   const addNoteForm = document.getElementById('add_note_form')
@@ -40,6 +49,9 @@ const submitAddNoteForm = (e, currentFolder) => {
     console.log('there is no current folder')
   }
 }
+
+
+// Firestore
 
 const addFolderToFirestore = (foldersColRef, foldersForm) => {
   if (foldersForm.title) {

@@ -4,11 +4,15 @@ const NoteMenu = ({
   state_notes = [],
   state_currentNote,
   state_currentFolder,
-  selectedIndex = 0,
   handleNoteClick,
-  submitAddNoteForm
+  submitAddNoteForm,
+  deleteSelectedNote
 }) => {
+
   let currentNoteId = state_currentNote ? state_currentNote.id : null
+  let currentFolderId = state_currentFolder ? state_currentFolder.id : null
+  let currentNoteName = state_currentNote ? state_currentNote.title : null
+
   return (
     <div className="h-80F relative mb-10 ml-4 table w-60">
       <div className="border-bF mb-6 w-full px-3 text-sm font-semibold text-slate-600">
@@ -26,7 +30,7 @@ const NoteMenu = ({
                 'w-full cursor-pointer border-b border-slate-100 p-1 text-sm font-semibold hover:bg-slate-50'
               }
               onClick={() => {
-                handleNoteClick(index)
+                handleNoteClick(state_notes, item.id, index)
               }}
             >
               <div className={'h-full w-full rounded-md p-2 ' + itemClass}>
@@ -48,7 +52,7 @@ const NoteMenu = ({
       </div>
       <form
         id="add_note_form"
-        className="add_note mt-10 rounded bg-slate-100 p-4"
+        className="mt-10 rounded bg-slate-100 p-4"
         onSubmit={(e) => {
           submitAddNoteForm(e, state_currentFolder)
         }}
@@ -56,11 +60,44 @@ const NoteMenu = ({
         <label htmlFor="title" className="text-sm font-semibold text-slate-600">
           Title:
         </label>
-        <input type="text" className="mt-1 rounded" name="title" required />
-        <button className="ml-4 mt-3 rounded bg-slate-200 px-2 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-300">
-          Add a new note
+        <input type="text" className="mt-3 rounded" name="title" required />
+        <button className="mt-4 rounded bg-slate-200 px-2 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-300">
+          Add new note
         </button>
       </form>
+      <form
+        id="rename_note_form"
+        className="mt-6 rounded bg-slate-100 p-4"
+        onSubmit={(e) => {
+          submitAddNoteForm(e, state_currentFolder)
+        }}
+      >
+        <label htmlFor="title" className="text-sm font-semibold text-slate-600">
+          Note: <span className="ml-1">{currentNoteName}</span>
+        </label>
+        <input type="text" className="mt-3 rounded" name="title" required />
+        <button className="ml-4F mt-4 rounded bg-slate-200 px-2 py-2 text-sm font-semibold text-slate-600 hover:bg-slate-300">
+          Rename note
+        </button>
+      </form>
+      <div className="mt-6 bg-red-50 p-4">
+        <div className="px-2 pb-1 text-sm font-semibold text-red-600">
+          Note: <span className="ml-1">{currentNoteName}</span>
+        </div>
+        <button
+          onClick={(e) => {
+            deleteSelectedNote(
+              e,
+              currentFolderId,
+              currentNoteId,
+              state_currentNote.title
+            )
+          }}
+          className="mt-3 rounded bg-red-100 px-2 py-2 text-sm font-semibold text-red-600 hover:bg-red-300"
+        >
+          Delete selected note
+        </button>
+      </div>
     </div>
   )
 }
