@@ -12,7 +12,6 @@ const NoteMenu = ({
   let currentNoteId = state_currentNote ? state_currentNote.id : null
   let currentFolderId = state_currentFolder ? state_currentFolder.id : null
   let currentNoteName = state_currentNote ? state_currentNote.title : null
-  console.log(state_currentNote)
   return (
     <div className="h-80F relative mb-10 ml-4 table w-60">
       <div className="border-bF mb-6 w-full px-3 text-sm font-semibold text-gray-600">
@@ -38,7 +37,7 @@ const NoteMenu = ({
                 'w-full cursor-pointer border-b border-gray-100 p-1 text-sm font-semibold hover:bg-gray-50'
               }
               onClick={() => {
-                handleNoteClick(state_notes, item.id, index)
+                handleNoteClick(state_notes, currentFolderId, item.id, index)
               }}
             >
               <div className={'h-full w-full rounded-md p-2 ' + itemClass}>

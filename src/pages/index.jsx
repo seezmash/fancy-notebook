@@ -36,14 +36,14 @@ import {
   deleteSelectedNote
 } from '../functions/misc'
 
-// = = = = = = = = = = COMPONENT = = = = = = = = = =
-
 const HomePage = () => {
   const [state_folders, setState_folders] = useState([])
   const [state_notes, setState_notes] = useState([])
   const [state_currentFolder, setState_currentFolder] = useState(null)
   const [state_currentFolderRef, setState_currentFolderRef] = useState(null)
   const [state_currentNote, setState_currentNote] = useState(null)
+  const [state_mostRecentNotePerFolder, setState_mostRecentNotePerFolder] =
+    useState([])
 
   const logCurrentState = () => {
     console.log(
@@ -67,14 +67,35 @@ const HomePage = () => {
       const filteredNotesColQuery = query(newNotesColRef, orderBy('createdAt'))
 
       setState_currentFolder(passedFolders[index])
-
       const unsubNotesCol = onSnapshot(filteredNotesColQuery, (snapshot) => {
         let newNotes = getDocsFromSnapshot(snapshot)
         setState_notes(newNotes)
-        console.log('notes snapshot updated')
-        if (!state_currentNote) {
-          console.log('there were no notes, new note is ', newNotes[0])
-          setState_currentNote(newNotes[0])
+        let mostRecentNotesArray = Array.from(state_mostRecentNotePerFolder)
+        let matchingFolderIndex = mostRecentNotesArray.findIndex(
+          (item) => item.folderId === clickedFolderId
+        )
+        if (matchingFolderIndex === -1) {
+          if (newNotes[0]) {
+            handleNoteClick(newNotes, clickedFolderId, newNotes[0].id, 0)
+          }
+        } else {
+          if (mostRecentNotesArray[matchingFolderIndex] && newNotes[0]) {
+            let mostRecentNoteId =
+              mostRecentNotesArray[matchingFolderIndex].noteId
+            let matchingNoteIndex = newNotes.findIndex(
+              (item) => item.id === mostRecentNoteId
+            )
+            if (matchingNoteIndex === -1) {
+              handleNoteClick(newNotes, clickedFolderId, newNotes[0].id, 0)
+            } else {
+              handleNoteClick(
+                newNotes,
+                clickedFolderId,
+                mostRecentNotesArray[matchingFolderIndex].noteId,
+                matchingNoteIndex
+              )
+            }
+          }
         }
       })
       return unsubNotesCol
@@ -83,39 +104,30 @@ const HomePage = () => {
     }
   }
 
-  const handleNoteClick = (passedNotes, clickedNoteId, index = -1) => {
+  const handleNoteClick = (
+    passedNotes,
+    currentFolderId,
+    clickedNoteId,
+    index = -1
+  ) => {
     setState_currentNote(passedNotes[index])
-  }
-
-  const getNoteData = async (currentFolderId, currentNoteId) => {
-    console.log('getNoteData', currentFolderId, currentNoteId)
-    if (currentFolderId && currentNoteId) {
-      const db = getFirestore()
-
-      const noteRef = doc(
-        db,
-        'folders',
-        currentFolderId,
-        'notes',
-        currentNoteId
-      )
-
-      getDoc(noteRef).then((doc) => {
-        console.log('note data', doc.data(), doc)
-        return 'greenest fuzz'
+    let mostRecentNotesArray = Array.from(state_mostRecentNotePerFolder)
+    // console.log('starting recent array', mostRecentNotesArray)
+    let matchingIndex = mostRecentNotesArray.findIndex(
+      (item) => item.folderId === currentFolderId
+    )
+    // console.log('matching index is', matchingIndex)
+    if (matchingIndex === -1) {
+      mostRecentNotesArray.push({
+        folderId: currentFolderId,
+        noteId: clickedNoteId
       })
-      // return result
+    } else {
+      mostRecentNotesArray[matchingIndex].noteId = clickedNoteId
     }
+    // console.log('new recent array', mostRecentNotesArray)
+    setState_mostRecentNotePerFolder(mostRecentNotesArray)
   }
-
-  // const deleteSelectedFolder = (e, currentFolderId) => {
-  //   if (e) {
-  //     e.preventDefault()
-  //   }
-  //   const db = getFirestore()
-  //   const docRef = doc(db, 'folders', currentFolderId)
-  //   deleteDoc(docRef)
-  // }
 
   const renameSelectedNote = (e, currentFolderId, currentNoteId) => {
     if (e) {
@@ -126,20 +138,8 @@ const HomePage = () => {
     const renameNoteForm = document.getElementById('rename_note_form')
     updateDoc(docRef, { title: renameNoteForm.title.value }).then(() => {
       renameNoteForm.reset()
-      console.log(`${currentFolderId} was renamed`)
     })
   }
-
-  // const deleteSelectedNote = (e, currentFolderId, currentNoteId) => {
-  //   if (e) {
-  //     e.preventDefault()
-  //   }
-  //   if (currentFolderId && currentNoteId) {
-  //     const db = getFirestore()
-  //     const docRef = doc(db, 'folders', currentFolderId, 'notes', currentNoteId)
-  //     deleteDoc(docRef)
-  //   }
-  // }
 
   // = = = = = = = = = = USE EFFECT = = = = = = = = = =
 
@@ -151,16 +151,10 @@ const HomePage = () => {
     const unsubFoldersCol = onSnapshot(filteredFoldersColQuery, (snapshot) => {
       let newFolders = getDocsFromSnapshot(snapshot)
       setState_folders(newFolders)
-      console.log('snapshot current folder', state_currentFolder)
-      if (!state_currentFolder) {
-        setState_currentFolder(newFolders[0])
-      } else {
-        let currentFolderExists = newFolders.find(
-          (element) => element.id === state_currentFolder.id
-        )
-        // if (!currentFolderExists) {
-        //   setState_currentFolder(newFolders[0])
-        // }
+      if (state_currentFolder === null) {
+        if (newFolders.length > 0) {
+          handleFolderClick(newFolders, newFolders[0].id, null, 0)
+        }
       }
     })
   }, [])
@@ -201,7 +195,6 @@ const HomePage = () => {
         <NoteEditor
           state_currentFolder={state_currentFolder}
           state_currentNote={state_currentNote}
-          getNoteData={getNoteData}
         />
       </main>
 

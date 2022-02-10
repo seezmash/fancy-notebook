@@ -21,7 +21,14 @@ const submitAddFolderForm = (e) => {
   const db = getFirestore()
   const foldersColRef = collection(db, 'folders')
   const addFolderForm = document.getElementById('add_folder_form')
-  addFolderToFirestore(foldersColRef, addFolderForm)
+  if (addFolderForm.title) {
+    addDoc(foldersColRef, {
+      title: addFolderForm.title.value,
+      createdAt: serverTimestamp()
+    }).then(() => {
+      addFolderForm.reset()
+    })
+  }
 }
 
 const submitAddNoteForm = (e, currentFolder) => {
@@ -37,9 +44,14 @@ const submitAddNoteForm = (e, currentFolder) => {
       currentFolder.id,
       'notes'
     )
-    addNoteToFirestore(currentNotesColRef, addNoteForm)
-  } else {
-    console.log('failed to add note, there is no current folder')
+    if (addNoteForm.title) {
+      addDoc(currentNotesColRef, {
+        title: addNoteForm.title.value,
+        createdAt: serverTimestamp()
+      }).then(() => {
+        addNoteForm.reset()
+      })
+    }
   }
 }
 
@@ -58,38 +70,4 @@ const renameSelectedFolder = (e, currentFolderId) => {
   })
 }
 
-// Firestore
-
-const addFolderToFirestore = (foldersColRef, foldersForm) => {
-  if (foldersForm.title) {
-    addDoc(foldersColRef, {
-      title: foldersForm.title.value,
-      createdAt: serverTimestamp()
-    }).then(() => {
-      foldersForm.reset()
-    })
-  } else {
-    console.log('failed to create folder, there is no folder title')
-  }
-}
-
-const addNoteToFirestore = (notesColRef, notesForm) => {
-  if (notesForm.title) {
-    addDoc(notesColRef, {
-      title: notesForm.title.value,
-      createdAt: serverTimestamp()
-    }).then(() => {
-      notesForm.reset()
-    })
-  } else {
-    console.log('failed to create note, this is no note title')
-  }
-}
-
-export {
-  submitAddFolderForm,
-  submitAddNoteForm,
-  addFolderToFirestore,
-  addNoteToFirestore,
-  renameSelectedFolder
-}
+export { submitAddFolderForm, submitAddNoteForm, renameSelectedFolder }
