@@ -7,7 +7,7 @@
    id="svg8"
    inkscape:version="1.1.1 (3bf5ae0d25, 2021-09-20)"
    sodipodi:docname="favicon.svg"
-   inkscape:export-filename="C:\Users\Seez\Documents\Dev\notebook-bear\public\favicon.png"
+   inkscape:export-filename="C:\Users\Seez\Documents\Dev\fancy-notebook\public\favicon.png"
    inkscape:export-xdpi="126.316"
    inkscape:export-ydpi="126.316"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -586,8 +586,8 @@
      inkscape:groupmode="layer"
      id="layer1">
     <path
-       d="m 7.0736467,7.4083333 h -1.546795 l -2.587037,-3.916738 v 3.916738 H 1.3930199 v -6.35 h 1.5467948 l 2.587037,3.934829 v -3.934829 h 1.546795 z"
-       id="path7151"
-       style="font-weight:bold;font-size:10.5833px;line-height:1.25;font-family:Poppins;-inkscape-font-specification:'Poppins, Bold';letter-spacing:0px;fill:#3b82f6;stroke-width:0.22614" />
+       style="font-weight:bold;font-size:10.5833px;line-height:1.25;font-family:Georgia;-inkscape-font-specification:'Georgia, Bold';letter-spacing:0px;fill:#d40000;stroke-width:0.22912"
+       d="M 7.0861343,2.7543556 H 6.7415606 Q 6.6117865,2.3829316 6.2806369,1.9667578 5.9539628,1.5461095 5.6586133,1.505834 5.5243637,1.4879366 5.3006155,1.4745136 5.0768662,1.4610905 4.888916,1.4610905 H 3.8999448 v 2.4925673 h 0.6309723 q 0.2685002,0 0.4653981,-0.05818 0.1969,-0.06265 0.3490491,-0.2192756 Q 5.45724,3.5643275 5.5601638,3.3047782 5.667563,3.0407544 5.689938,2.8528053 H 6.0300373 V 5.5243718 H 5.689938 Q 5.672041,5.3229978 5.5512141,5.0365988 5.4303897,4.7457248 5.3453643,4.6517498 5.2155901,4.5085498 5.0142158,4.4414258 4.8128414,4.3698258 4.5309171,4.3698258 H 3.8999448 v 2.103244 q 0,0.161098 0.058177,0.277449 0.062651,0.111874 0.2326991,0.183473 0.098446,0.04028 0.2684991,0.07607 0.1745251,0.03132 0.3445737,0.04922 v 0.349049 H 1.3805308 v -0.349049 q 0.1297742,-0.01342 0.3445737,-0.0358 0.2147995,-0.02686 0.2998238,-0.06265 0.1610999,-0.06265 0.2237493,-0.174524 0.062651,-0.111874 0.062651,-0.286398 V 2.0204563 q 0,-0.1521491 -0.058177,-0.2640247 Q 2.1994596,1.6400826 2.024928,1.564008 1.8996282,1.510305 1.6937795,1.465562 1.4879297,1.420808 1.3805305,1.407385 V 1.0583357 H 7.086136 Z"
+       id="path924" />
   </g>
 </svg>

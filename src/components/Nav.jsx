@@ -2,14 +2,14 @@ import Link from 'next/link'
 
 const NavComponent = () => {
   return (
-    <nav className="relative top-0 z-50 w-full border-b bg-white">
+    <nav className="relative top-0 z-50 w-full border-b border-gray-200 bg-white">
       {/* ====================================================================== */}
-      <div className="page_width_wide border-bF relative left-0 right-0 mx-auto h-14 px-4">
+      <div className="page_width_wide relative left-0 right-0 mx-auto h-14 w-full">
         <Link href="/" passHref>
-          <div className="bg-blue-400F z-80 mx-autoF NOTrounded absolute top-0 bottom-0 left-0 right-0 my-auto h-7 w-40 cursor-pointer border border-transparent">
+          <div className="bg-blue-400F z-80 mx-autoF NOTrounded absolute top-0 bottom-0 left-0 right-0 my-auto h-8 w-44 cursor-pointer border border-transparent pl-4">
             <img
               className="h-full w-full object-contain py-0 pr-0"
-              src="/logo_min.svg"
+              src="/logo_fancy_min.svg"
               alt="logo"
             />
           </div>

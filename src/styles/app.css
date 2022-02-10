@@ -31,15 +31,15 @@
 
 @layer components {
   .main_content_wrapper {
-    @apply mx-auto mt-8 block w-full;
+    @apply mx-auto mt-6 block w-full;
   }
 
   .selected_collection {
-    @apply bg-slate-100 text-slate-700;
+    @apply bg-gray-100 text-gray-700;
   }
 
   .selected_note {
-    @apply bg-slate-100 text-slate-700;
+    @apply bg-gray-100 text-gray-700;
   }
 
   /* ========== C o l o r s ========== */

@@ -14,15 +14,10 @@ import {
   updateDoc
 } from 'firebase/firestore'
 
-const deleteSelectedFolder = (e) => {
-
-}
-
-
 const submitAddFolderForm = (e) => {
-        if (e) {
-          e.preventDefault()
-        }
+  if (e) {
+    e.preventDefault()
+  }
   const db = getFirestore()
   const foldersColRef = collection(db, 'folders')
   const addFolderForm = document.getElementById('add_folder_form')
@@ -30,13 +25,11 @@ const submitAddFolderForm = (e) => {
 }
 
 const submitAddNoteForm = (e, currentFolder) => {
-      if (e) {
-        e.preventDefault()
-      }
+  if (e) {
+    e.preventDefault()
+  }
   const db = getFirestore()
-  // const addNoteForm = document.querySelector('.add_note')
   const addNoteForm = document.getElementById('add_note_form')
-  // console.log('note form items', addNoteForm, addNoteForm2)
   if (currentFolder) {
     const currentNotesColRef = collection(
       db,
@@ -46,10 +39,24 @@ const submitAddNoteForm = (e, currentFolder) => {
     )
     addNoteToFirestore(currentNotesColRef, addNoteForm)
   } else {
-    console.log('there is no current folder')
+    console.log('failed to add note, there is no current folder')
   }
 }
 
+const renameSelectedFolder = (e, currentFolderId) => {
+  if (e) {
+    e.preventDefault()
+  }
+  console.log(`rename folder ${currentFolderId} was clicked`)
+  const db = getFirestore()
+  const docRef = doc(db, 'folders', currentFolderId)
+  const renameFolderForm = document.getElementById('rename_folder_form')
+
+  updateDoc(docRef, { title: renameFolderForm.title.value }).then(() => {
+    renameFolderForm.reset()
+    console.log(`${currentFolderId} was renamed`)
+  })
+}
 
 // Firestore
 
@@ -62,7 +69,7 @@ const addFolderToFirestore = (foldersColRef, foldersForm) => {
       foldersForm.reset()
     })
   } else {
-    console.log('there is no folder title')
+    console.log('failed to create folder, there is no folder title')
   }
 }
 
@@ -75,7 +82,7 @@ const addNoteToFirestore = (notesColRef, notesForm) => {
       notesForm.reset()
     })
   } else {
-    console.log('this is no note title')
+    console.log('failed to create note, this is no note title')
   }
 }
 
@@ -83,5 +90,6 @@ export {
   submitAddFolderForm,
   submitAddNoteForm,
   addFolderToFirestore,
-  addNoteToFirestore
+  addNoteToFirestore,
+  renameSelectedFolder
 }

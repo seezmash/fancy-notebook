@@ -60,4 +60,29 @@ const handleFolderClick = (
   }
 }
 
-export { getDocsFromSnapshot, handleFolderClick }
+const deleteSelectedNote = (e, currentFolderId, currentNoteId) => {
+  if (e) {
+    e.preventDefault()
+  }
+  if (currentFolderId && currentNoteId) {
+    const db = getFirestore()
+    const docRef = doc(db, 'folders', currentFolderId, 'notes', currentNoteId)
+    deleteDoc(docRef)
+  }
+}
+
+const deleteSelectedFolder = (e, currentFolderId) => {
+  if (e) {
+    e.preventDefault()
+  }
+  const db = getFirestore()
+  const docRef = doc(db, 'folders', currentFolderId)
+  deleteDoc(docRef)
+}
+
+export {
+  getDocsFromSnapshot,
+  handleFolderClick,
+  deleteSelectedFolder,
+  deleteSelectedNote
+}
