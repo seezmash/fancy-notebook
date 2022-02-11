@@ -1,5 +1,7 @@
 import NextHead from '../components/next/NextHead'
 import React, { useEffect, useState } from 'react'
+import { useEditor, EditorContent } from '@tiptap/react'
+import StarterKit from '@tiptap/starter-kit'
 
 // Firebase
 import {
@@ -19,11 +21,11 @@ import {
 } from 'firebase/firestore'
 
 // Layout
+
 import Nav from '../components/Nav'
 import FoldersMenu from '../components/FoldersMenu'
 import NotesMenu from '../components/NotesMenu'
 import NoteEditor from '../components/NoteEditor'
-
 // Functions
 import {
   submitAddFolderForm,
@@ -33,7 +35,8 @@ import {
 import {
   getDocsFromSnapshot,
   deleteSelectedFolder,
-  deleteSelectedNote
+  deleteSelectedNote,
+  renameSelectedNote
 } from '../functions/misc'
 
 const HomePage = () => {
@@ -44,6 +47,37 @@ const HomePage = () => {
   const [state_currentNote, setState_currentNote] = useState(null)
   const [state_mostRecentNotePerFolder, setState_mostRecentNotePerFolder] =
     useState([])
+
+  const selectIntroNote = (passedEditor, viewNoteByDefault) => {
+    const db = getFirestore()
+    const foldersColRef = collection(db, 'folders')
+    const filteredFoldersColQuery = query(foldersColRef, orderBy('createdAt'))
+
+    const unsubFoldersCol = onSnapshot(filteredFoldersColQuery, (snapshot) => {
+      let newFolders = getDocsFromSnapshot(snapshot)
+      setState_folders(newFolders)
+      if (state_currentFolder === null) {
+        if (newFolders.length > 0) {
+          handleFolderClick(
+            newFolders,
+            newFolders[0].id,
+            null,
+            0,
+            passedEditor,
+            viewNoteByDefault
+          )
+        }
+      }
+    })
+  }
+
+  const mainEditor = useEditor({
+    onCreate({ editor }) {
+      selectIntroNote(editor, true)
+    },
+    extensions: [StarterKit],
+    content: ''
+  })
 
   const logCurrentState = () => {
     console.log(
@@ -59,7 +93,9 @@ const HomePage = () => {
     passedFolders,
     clickedFolderId,
     currentFolderId,
-    index = -1
+    index = -1,
+    passedEditor,
+    viewNoteByDefault = false
   ) => {
     if (clickedFolderId !== currentFolderId) {
       const db = getFirestore()
@@ -74,26 +110,41 @@ const HomePage = () => {
         let matchingFolderIndex = mostRecentNotesArray.findIndex(
           (item) => item.folderId === clickedFolderId
         )
-        if (matchingFolderIndex === -1) {
-          if (newNotes[0]) {
-            handleNoteClick(newNotes, clickedFolderId, newNotes[0].id, 0)
-          }
-        } else {
-          if (mostRecentNotesArray[matchingFolderIndex] && newNotes[0]) {
-            let mostRecentNoteId =
-              mostRecentNotesArray[matchingFolderIndex].noteId
-            let matchingNoteIndex = newNotes.findIndex(
-              (item) => item.id === mostRecentNoteId
-            )
-            if (matchingNoteIndex === -1) {
-              handleNoteClick(newNotes, clickedFolderId, newNotes[0].id, 0)
-            } else {
+        if (viewNoteByDefault) {
+          if (matchingFolderIndex === -1) {
+            if (newNotes[0]) {
               handleNoteClick(
                 newNotes,
                 clickedFolderId,
-                mostRecentNotesArray[matchingFolderIndex].noteId,
-                matchingNoteIndex
+                newNotes[0].id,
+                0,
+                passedEditor
               )
+            }
+          } else {
+            if (mostRecentNotesArray[matchingFolderIndex] && newNotes[0]) {
+              let mostRecentNoteId =
+                mostRecentNotesArray[matchingFolderIndex].noteId
+              let matchingNoteIndex = newNotes.findIndex(
+                (item) => item.id === mostRecentNoteId
+              )
+              if (matchingNoteIndex === -1) {
+                handleNoteClick(
+                  newNotes,
+                  clickedFolderId,
+                  newNotes[0].id,
+                  0,
+                  passedEditor
+                )
+              } else {
+                handleNoteClick(
+                  newNotes,
+                  clickedFolderId,
+                  mostRecentNotesArray[matchingFolderIndex].noteId,
+                  matchingNoteIndex,
+                  passedEditor
+                )
+              }
             }
           }
         }
@@ -108,7 +159,8 @@ const HomePage = () => {
     passedNotes,
     currentFolderId,
     clickedNoteId,
-    index = -1
+    index = -1,
+    passedEditor
   ) => {
     setState_currentNote(passedNotes[index])
     let mostRecentNotesArray = Array.from(state_mostRecentNotePerFolder)
@@ -127,37 +179,39 @@ const HomePage = () => {
     }
     // console.log('new recent array', mostRecentNotesArray)
     setState_mostRecentNotePerFolder(mostRecentNotesArray)
+    setNoteData(currentFolderId, clickedNoteId, passedEditor)
   }
 
-  const renameSelectedNote = (e, currentFolderId, currentNoteId) => {
-    if (e) {
-      e.preventDefault()
+  const setNoteData = (currentFolderId, currentNoteId, passedEditor) => {
+    console.log('set note data')
+    console.log(passedEditor)
+    if (!passedEditor) {
+      console.log('text editor is null')
+      return null
     }
-    const db = getFirestore()
-    const docRef = doc(db, 'folders', currentFolderId, 'notes', currentNoteId)
-    const renameNoteForm = document.getElementById('rename_note_form')
-    updateDoc(docRef, { title: renameNoteForm.title.value }).then(() => {
-      renameNoteForm.reset()
-    })
+    if (currentFolderId && currentNoteId) {
+      const db = getFirestore()
+      const noteRef = doc(
+        db,
+        'folders',
+        currentFolderId,
+        'notes',
+        currentNoteId
+      )
+
+      getDoc(noteRef).then((doc) => {
+        let docData = doc.data()
+        if (docData && passedEditor) {
+          console.log(docData.content)
+          console.log('editor commands', passedEditor.commands)
+          if (passedEditor.commands)
+            passedEditor.commands.setContent(docData.content)
+        }
+      })
+    }
   }
 
   // = = = = = = = = = = USE EFFECT = = = = = = = = = =
-
-  useEffect(() => {
-    const db = getFirestore()
-    const foldersColRef = collection(db, 'folders')
-    const filteredFoldersColQuery = query(foldersColRef, orderBy('createdAt'))
-
-    const unsubFoldersCol = onSnapshot(filteredFoldersColQuery, (snapshot) => {
-      let newFolders = getDocsFromSnapshot(snapshot)
-      setState_folders(newFolders)
-      if (state_currentFolder === null) {
-        if (newFolders.length > 0) {
-          handleFolderClick(newFolders, newFolders[0].id, null, 0)
-        }
-      }
-    })
-  }, [])
 
   return (
     <>
@@ -182,6 +236,7 @@ const HomePage = () => {
           submitAddFolderForm={submitAddFolderForm}
           deleteSelectedFolder={deleteSelectedFolder}
           renameSelectedFolder={renameSelectedFolder}
+          mainEditor={mainEditor}
         />
         <NotesMenu
           state_notes={state_notes}
@@ -191,19 +246,23 @@ const HomePage = () => {
           submitAddNoteForm={submitAddNoteForm}
           deleteSelectedNote={deleteSelectedNote}
           renameSelectedNote={renameSelectedNote}
+          mainEditor={mainEditor}
         />
         <NoteEditor
           state_currentFolder={state_currentFolder}
           state_currentNote={state_currentNote}
+          setNoteData={setNoteData}
+          handleNoteClick={handleNoteClick}
+          mainEditor={mainEditor}
         />
       </main>
 
-      <div
+      {/* <div
         className="fixed bottom-8 right-8 mt-60 ml-4 h-min cursor-pointer rounded bg-gray-200 p-2 text-center text-sm font-semibold text-gray-500 hover:bg-gray-300"
         onClick={logCurrentState}
       >
         log state
-      </div>
+      </div> */}
     </>
   )
 }

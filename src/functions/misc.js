@@ -80,9 +80,22 @@ const deleteSelectedFolder = (e, currentFolderId) => {
   deleteDoc(docRef)
 }
 
+const renameSelectedNote = (e, currentFolderId, currentNoteId) => {
+  if (e) {
+    e.preventDefault()
+  }
+  const db = getFirestore()
+  const docRef = doc(db, 'folders', currentFolderId, 'notes', currentNoteId)
+  const renameNoteForm = document.getElementById('rename_note_form')
+  updateDoc(docRef, { title: renameNoteForm.title.value }).then(() => {
+    renameNoteForm.reset()
+  })
+}
+
 export {
   getDocsFromSnapshot,
   handleFolderClick,
   deleteSelectedFolder,
-  deleteSelectedNote
+  deleteSelectedNote,
+  renameSelectedNote
 }

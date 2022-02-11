@@ -7,7 +7,8 @@ const NoteMenu = ({
   handleNoteClick,
   submitAddNoteForm,
   deleteSelectedNote,
-  renameSelectedNote
+  renameSelectedNote,
+  mainEditor
 }) => {
   let currentNoteId = state_currentNote ? state_currentNote.id : null
   let currentFolderId = state_currentFolder ? state_currentFolder.id : null
@@ -37,7 +38,13 @@ const NoteMenu = ({
                 'w-full cursor-pointer border-b border-gray-100 p-1 text-sm font-semibold hover:bg-gray-50'
               }
               onClick={() => {
-                handleNoteClick(state_notes, currentFolderId, item.id, index)
+                handleNoteClick(
+                  state_notes,
+                  currentFolderId,
+                  item.id,
+                  index,
+                  mainEditor
+                )
               }}
             >
               <div className={'h-full w-full rounded-md p-2 ' + itemClass}>

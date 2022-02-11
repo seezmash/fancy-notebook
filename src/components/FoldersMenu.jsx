@@ -6,7 +6,8 @@ const FolderMenu = ({
   handleFolderClick,
   submitAddFolderForm,
   deleteSelectedFolder,
-  renameSelectedFolder
+  renameSelectedFolder,
+  mainEditor
 }) => {
   let currentFolderId = state_currentFolder ? state_currentFolder.id : null
   let currentFolderName = state_currentFolder ? state_currentFolder.title : null
@@ -38,7 +39,8 @@ const FolderMenu = ({
                   state_folders,
                   item.id,
                   currentFolderId,
-                  index
+                  index,
+                  mainEditor
                 )
               }}
             >

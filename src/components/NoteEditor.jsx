@@ -19,54 +19,46 @@ import {
   updateDoc
 } from 'firebase/firestore'
 
-const NoteEditor = ({ state_currentFolder, state_currentNote }) => {
-  const editor = useEditor({
-    extensions: [StarterKit],
-    content: 'hello'
-  })
-
-  // editor.commands.setContent({
-  //   type: 'doc',
-  //   content: 'Three little birds'
-  // })
-
+const NoteEditor = ({
+  state_currentFolder,
+  state_currentNote,
+  setNoteData,
+  mainEditor
+}) => {
   let currentNoteName = state_currentNote ? state_currentNote.title : null
   let currentNoteId = state_currentNote ? state_currentNote.id : null
   let currentFolderId = state_currentFolder ? state_currentFolder.id : null
+  let noteContent = state_currentNote ? state_currentNote.content : null
 
-  const setNoteData = (currentFolderId, currentNoteId) => {
-    console.log('set note data')
-    if (currentFolderId && currentNoteId) {
-      const db = getFirestore()
+  // const setNoteData = (currentFolderId, currentNoteId, textEditor) => {
+  //   console.log('set note data')
+  //   if (currentFolderId && currentNoteId) {
+  //     const db = getFirestore()
 
-      const noteRef = doc(
-        db,
-        'folders',
-        currentFolderId,
-        'notes',
-        currentNoteId
-      )
+  //     const noteRef = doc(
+  //       db,
+  //       'folders',
+  //       currentFolderId,
+  //       'notes',
+  //       currentNoteId
+  //     )
 
-      getDoc(noteRef).then((doc) => {
-        let docData = doc.data()
-        if (docData) {
-          console.log(docData.content)
-          editor.commands.setContent(docData.content)
-        }
-      })
-    }
-  }
-
-  const printJson = () => {
-    let myJson = editor.getJSON()
-    console.log(myJson)
-  }
+  //     getDoc(noteRef).then((doc) => {
+  //       let docData = doc.data()
+  //       if (docData) {
+  //         console.log(docData.content)
+  //         console.log(textEditor.commands)
+  //         textEditor.commands.setContent(docData.content)
+  //       }
+  //     })
+  //   }
+  // }
 
   const uploadJson = (folderId, noteId) => {
     if (folderId && noteId) {
       const db = getFirestore()
       const noteRef = doc(db, 'folders', folderId, 'notes', noteId)
-      let contentJSON = editor.getJSON()
+      let contentJSON = mainEditor.getJSON()
 
       if (contentJSON) {
         updateDoc(noteRef, { content: contentJSON }).then(() => {
@@ -156,32 +148,16 @@ const NoteEditor = ({ state_currentFolder, state_currentNote }) => {
           </button>
         </div>
         <div className="borderF mx-5 mb-4 mt-2 rounded-md border-gray-100 p-1">
-          <EditorContent editor={editor} />
+          <EditorContent editor={mainEditor} />
         </div>
       </div>
       <button
         onClick={() => {
-          printJson()
-        }}
-        className="float-right mx-auto mt-10 rounded bg-gray-200 p-2 text-sm font-semibold text-gray-500"
-      >
-        log content
-      </button>
-      <button
-        onClick={() => {
-          setNoteData(currentFolderId, currentNoteId)
-        }}
-        className="float-right mx-auto mr-2 mt-10 rounded bg-gray-200 p-2 text-sm font-semibold text-gray-500"
-      >
-        set content
-      </button>
-      <button
-        onClick={() => {
           uploadJson(currentFolderId, currentNoteId)
         }}
-        className="float-right mx-auto mt-10 mr-2 rounded bg-gray-200 p-2 text-sm font-semibold text-gray-500"
+        className="float-right mx-auto mt-10 mr-2 rounded bg-gray-200 p-2 text-sm font-semibold text-gray-500 hover:bg-gray-300"
       >
-        upload content
+        Save changes
       </button>
     </div>
   )
