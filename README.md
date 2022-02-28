@@ -1,7 +1,7 @@
 [![Project Banner](https://github.com/seezmash/readme-images/blob/main/fancy-notebook.png)](https://fancy-notebook.web.app/)
 
 A simple note managing app hosted on Firebase that interacts with a Firestore database.
-A humble demo is available over at [fancy-notebook.web.app](https://fancy-notebook.web.app/).
+A humble demo is available over at [fancy-notebook.web.app](https://fancy-notebook.web.app/)
 
 ### Built with
 
